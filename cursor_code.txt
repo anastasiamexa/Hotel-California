@@ -1,0 +1,35 @@
+CREATE OR REPLACE FUNCTION get_number_of_reservations()
+   RETURNS TABLE (
+		numbers TEXT,
+		categories TEXT
+		) AS $$
+DECLARE 
+rec_reservation RECORD;
+	 cur_reservation CURSOR 
+		 FOR SELECT COUNT(reservation_id) AS number,category AS cat
+		 FROM rooms INNER JOIN  reserved_rooms 
+		 ON rooms.id = reserved_rooms.room_id
+		 GROUP BY category;
+BEGIN
+   -- Open the cursor
+   OPEN cur_reservation;
+	
+   LOOP
+    -- fetch row 
+      FETCH cur_reservation INTO rec_reservation;
+    -- exit when no more row to fetch
+      EXIT WHEN NOT FOUND;
+
+    -- build the output
+      	  numbers := rec_reservation.number;
+	  categories := rec_reservation.cat;
+	  RETURN NEXT;
+   END LOOP;
+  
+   -- Close the cursor
+   CLOSE cur_reservation;
+END; $$
+
+LANGUAGE plpgsql;
+
+SELECT get_number_of_reservations();

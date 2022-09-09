@@ -1,0 +1,22 @@
+-- Our function
+CREATE OR REPLACE FUNCTION change_date()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+	UPDATE transactions SET total_cost = total_cost - 0.05*total_cost FROM reservations
+	WHERE reservations.date_in <= CURRENT_DATE AND reservations.date_out > CURRENT_DATE;
+RETURN NEW;
+END;
+$$;
+
+-- Our trigger
+CREATE TRIGGER change_date
+BEFORE UPDATE ON reserved_rooms
+FOR EACH ROW EXECUTE PROCEDURE change_date();
+
+-- The Update query
+UPDATE reserved_rooms SET room_id = 11 WHERE room_id = 13;
+
+-- Select queries to see if it worked
+SELECT * FROM reserved_rooms WHERE reservation_id = 3;
+SELECT reservation_id, customer_id, reservations.date_in, reservations.date_out, total_cost FROM transactions INNER JOIN reservations
+ON reservations.id = transactions.reservation_id WHERE reservations.date_in <= CURRENT_DATE AND reservations.date_out > CURRENT_DATE;

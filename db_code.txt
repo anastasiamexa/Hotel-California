@@ -1,0 +1,92 @@
+DROP TABLE IF EXISTS RESERVATIONS;
+CREATE TABLE RESERVATIONS(
+	id SERIAL,
+	date_time timestamp NOT NULL,
+	date_in date NOT NULL,
+	date_out date NOT NULL,
+	remaining_cost real NOT NULL,
+	status boolean NOT NULL,
+	payment_date date,
+	PRIMARY KEY(id)
+);
+
+
+DROP TABLE IF EXISTS CUSTOMERS;
+CREATE TABLE CUSTOMERS(
+	id SERIAL,
+	title varchar(3) NOT NULL,
+	fullname varchar(45) NOT NULL,
+	age int NOT NULL,
+	country varchar(45) NOT NULL,
+	city varchar(45) NOT NULL,
+	street_address varchar(45) NOT NULL,
+	street_number int NOT NULL,
+	postcode int NOT NULL,
+	phone_number char(10) NOT NULL,
+	email varchar(45) NOT NULL,
+	card_number char(16) NOT NULL UNIQUE,
+	PRIMARY KEY(id)
+);
+
+
+DROP TABLE IF EXISTS GUESTS;
+CREATE TABLE GUESTS(
+	id SERIAL,
+	customer_id int NOT NULL,
+	title varchar(3) NOT NULL,
+	fullname varchar(45) NOT NULL,
+	age int NOT NULL,
+	country varchar(45) NOT NULL,
+	city varchar(45) NOT NULL,
+	street_address varchar(45) NOT NULL,
+	street_number int NOT NULL,
+	postcode int NOT NULL,
+	phone_number char(10) NOT NULL,
+	email varchar(45) NOT NULL,
+	PRIMARY KEY(id),
+	FOREIGN KEY (customer_id) references customers(id)
+);
+
+
+DROP TABLE IF EXISTS TRANSACTIONS;
+CREATE TABLE TRANSACTIONS(
+	id SERIAL,
+	reservation_id int NOT NULL,
+	customer_id int NOT NULL,
+	card_number char(16) NOT NULL, 
+	total_cost real NOT NULL,
+	PRIMARY KEY(id),
+	FOREIGN KEY (reservation_id) references reservations(id),
+	FOREIGN KEY (customer_id) references customers(id),
+	FOREIGN KEY (card_number) references customers(card_number)
+);
+
+
+DROP TABLE IF EXISTS ROOMS;
+CREATE TABLE ROOMS(
+	id SERIAL,
+	category varchar(45) NOT NULL,
+	min_cost real NOT NULL,
+	max_cost real NOT NULL,
+	high_season boolean NOT NULL,
+	type varchar(45) NOT NULL,
+	financial_zone varchar(45) NOT NULL,
+	all_inclusive boolean NOT NULL,
+	breakfast boolean NOT NULL,
+	dinner boolean NOT NULL,
+	smoking boolean NOT NULL,
+	sea_view boolean NOT NULL,
+	cost_per_night real NOT NULL,
+	PRIMARY KEY(id)
+);
+
+
+DROP TABLE IF EXISTS RESERVED_ROOMS;
+CREATE TABLE RESERVED_ROOMS(
+	id SERIAL,
+	room_id int NOT NULL,
+	reservation_id int NOT NULL,
+	PRIMARY KEY(id),
+	FOREIGN KEY (reservation_id) references reservations(id),
+	FOREIGN KEY (room_id) references rooms(id)
+);
